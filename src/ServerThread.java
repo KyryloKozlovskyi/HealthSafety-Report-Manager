@@ -5,7 +5,6 @@ import java.net.Socket;
 
 public class ServerThread extends Thread {
     private Socket connection;
-    private Object response;
     private ObjectOutputStream out;
     private ObjectInputStream in;
 
@@ -14,36 +13,51 @@ public class ServerThread extends Thread {
         this.connection = socket;
     }
 
-    // Run method to handle client requests
+    // Method to send message to client
+    private void sendMessage(String message) {
+        try {
+            out.writeObject(message);
+            out.flush();
+            System.out.println("server>" + message);
+        } catch (IOException ioException) {
+            System.err.println("Error sending message: " + ioException.getMessage());
+            ioException.printStackTrace();
+        }
+    }
+
     @Override
     public void run() {
         try {
-            // Initialize ObjectOutputStream and ObjectInputStream
+            // Create streams to send and receive data from the client
             out = new ObjectOutputStream(connection.getOutputStream());
             in = new ObjectInputStream(connection.getInputStream());
 
-            // Print client connection information
-            System.out.println("Handler thread is running for client: " + connection.getInetAddress());
-
-            // Send a request to the client
-            out.writeObject("Hello from Server");
-            out.flush(); // Flush the output stream to send data
-
-            // Read response from the client
-            response = in.readObject();
-            System.out.println("Received response from client: " + response);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("DEBUG Thread: Handler thread is running for client: " + connection.getInetAddress());
+            // Server -> Client conversation
+            // Send welcome message to client
+            sendMessage("Welcome to the Health and Safety Report Manager!");
+            String response;
+            // Menu loop
+            do {
+                sendMessage("Choose an option: 1 - Register, 2 - Log in, 0 - Exit");
+                response = (String) in.readObject();
+            } while (!response.equalsIgnoreCase("1") && !response.equalsIgnoreCase("2") && !response.equalsIgnoreCase("0"));
+        } catch (IOException ioException) {
+            System.err.println("IO Exception: " + ioException.getMessage());
+            ioException.printStackTrace();
+        } catch (ClassNotFoundException classNotFoundException) {
+            System.err.println("Class not found: " + classNotFoundException.getMessage());
+            classNotFoundException.printStackTrace();
         } finally {
-            // Closing connection and streams
             try {
+                // Close the socket and streams
                 in.close();
                 out.close();
                 connection.close();
             } catch (IOException e) {
+                System.err.println("Error closing resources: " + e.getMessage());
                 e.printStackTrace();
             }
         }
     }
 }
-
