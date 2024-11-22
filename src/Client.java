@@ -11,6 +11,7 @@ public class Client {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private Socket connection;
+    private String choice;
 
     // Constructor
     public Client() {
@@ -26,6 +27,50 @@ public class Client {
         } catch (IOException ioException) {
             System.err.println("Error sending message: " + ioException.getMessage());
             ioException.printStackTrace();
+        }
+    }
+
+    // Method for user registration
+    private void register() throws IOException, ClassNotFoundException {
+        String response;
+        try {
+            // Conversation with server
+            System.out.println("DEBUG Registering user");
+            // Name
+            response = (String) in.readObject();
+            System.out.println(response);
+            response = input.nextLine();
+            sendMessage(response);
+            // Employee ID
+            response = (String) in.readObject();
+            System.out.println(response);
+            response = input.nextLine();
+            sendMessage(response);
+            // Email
+            response = (String) in.readObject();
+            System.out.println(response);
+            response = input.nextLine();
+            sendMessage(response);
+            // Password
+            response = (String) in.readObject();
+            System.out.println(response);
+            response = input.nextLine();
+            sendMessage(response);
+            // Department Name
+            response = (String) in.readObject();
+            System.out.println(response);
+            response = input.nextLine();
+            sendMessage(response);
+            // Role
+            response = (String) in.readObject();
+            System.out.println(response);
+            response = input.nextLine();
+            sendMessage(response);
+            // Verify
+            response = (String) in.readObject();
+            System.out.println(response);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error during registration: " + e.getMessage());
         }
     }
 
@@ -47,7 +92,11 @@ public class Client {
                 System.out.println(response);
                 response = input.nextLine();
                 sendMessage(response);
-            } while (!response.equalsIgnoreCase("1") && !response.equalsIgnoreCase("2") && !response.equalsIgnoreCase("0")); // Adjusted loop condition to only exit on "0"
+                choice = response;
+            } while (!response.equalsIgnoreCase("1") && !response.equalsIgnoreCase("2") && !response.equalsIgnoreCase("0"));
+            if (choice.equalsIgnoreCase("1")) {
+                register();
+            }
         } catch (IOException ioException) {
             System.err.println("IO Exception: " + ioException.getMessage());
             ioException.printStackTrace();

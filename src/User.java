@@ -3,14 +3,14 @@ import java.io.Serializable;
 // User class to store user data
 public class User implements Serializable {
     private String name; // Stores user name
-    private int employeeId; // Stores unique ID
+    private String employeeId; // Stores unique ID
     private String email; // Stores user unique email
     private String password; // Stores user password
     private String departmentName; // Stores department name
     private String role; // Stores user role
 
     // Constructor
-    public User(String name, int employeeId, String email, String password, String departmentName, String role) {
+    public User(String name, String employeeId, String email, String password, String departmentName, String role) {
         this.name = name;
         this.employeeId = employeeId;
         this.email = email;
@@ -28,11 +28,11 @@ public class User implements Serializable {
         this.name = name;
     }
 
-    public int getEmployeeId() {
+    public String getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId(int employeeId) {
+    public void setEmployeeId(String employeeId) {
         this.employeeId = employeeId;
     }
 

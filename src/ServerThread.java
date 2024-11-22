@@ -7,10 +7,13 @@ public class ServerThread extends Thread {
     private Socket connection;
     private ObjectOutputStream out;
     private ObjectInputStream in;
+    private String choice;
+    private SharedObject sharedObject;
 
     // Constructor
     public ServerThread(Socket socket) {
         this.connection = socket;
+        sharedObject = new SharedObject();
     }
 
     // Method to send message to client
@@ -22,6 +25,31 @@ public class ServerThread extends Thread {
         } catch (IOException ioException) {
             System.err.println("Error sending message: " + ioException.getMessage());
             ioException.printStackTrace();
+        }
+    }
+
+    // Method to handle user registration on server side
+    private void register() throws IOException, ClassNotFoundException {
+        try {
+            // Conversation with client
+            System.out.println("DEBUG Registering user");
+            sendMessage("Enter name: ");
+            String name = (String) in.readObject();
+            sendMessage("Enter employee ID: ");
+            String employeeId = (String) in.readObject();
+            sendMessage("Enter email: ");
+            String email = (String) in.readObject();
+            sendMessage("Enter password: ");
+            String password = (String) in.readObject();
+            sendMessage("Enter department name: ");
+            String departmentName = (String) in.readObject();
+            sendMessage("Enter role: ");
+            String role = (String) in.readObject();
+            // Verify
+            sendMessage("You entered the following data: \nName: " + name + "\nEmployee ID: " + employeeId + "\nEmail: " + email + "\nPassword: " + password + "\nDepartment Name: " + departmentName + "\nRole: " + role);
+            sharedObject.addUser(name, employeeId, email, password, departmentName, role);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error during registration: " + e.getMessage());
         }
     }
 
@@ -41,7 +69,11 @@ public class ServerThread extends Thread {
             do {
                 sendMessage("Choose an option: 1 - Register, 2 - Log in, 0 - Exit");
                 response = (String) in.readObject();
+                choice = response;
             } while (!response.equalsIgnoreCase("1") && !response.equalsIgnoreCase("2") && !response.equalsIgnoreCase("0"));
+            if (choice.equalsIgnoreCase("1")) {
+                register();
+            }
         } catch (IOException ioException) {
             System.err.println("IO Exception: " + ioException.getMessage());
             ioException.printStackTrace();
