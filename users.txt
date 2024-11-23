@@ -1,2 +1,3 @@
 sam~1234~sam123@gmail.com~1234567~sales~operator
 john~5677~johnj@yahoo.com~67847ghb~production~supervisor
+Owen~8790~owen@gmail.com~54638sdsd~quality~inspector

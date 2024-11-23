@@ -66,9 +66,9 @@ public class Client {
             System.out.println(response);
             response = input.nextLine();
             sendMessage(response);
-            // Verify DEBUG
-            //response = (String) in.readObject();
-            //System.out.println(response);
+            // Verify
+            response = (String) in.readObject();
+            System.out.println(response);
             // DEBUG
             //response = (String) in.readObject();
             //System.out.println(response);

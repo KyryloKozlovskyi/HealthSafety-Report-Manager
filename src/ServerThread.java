@@ -47,8 +47,12 @@ public class ServerThread extends Thread {
             String role = (String) in.readObject();
             // Verify data
             //sendMessage("You entered the following data: \nName: " + name + "\nEmployee ID: " + employeeId + "\nEmail: " + email + "\nPassword: " + password + "\nDepartment Name: " + departmentName + "\nRole: " + role);
-            sharedObject.addUser(name, employeeId, email, password, departmentName, role);
-            writeSharedObjectToFile("users.txt");
+            if (sharedObject.addUser(name, employeeId, email, password, departmentName, role)) {
+                writeSharedObjectToFile("users.txt");
+                sendMessage("User successfully registered!");
+            } else {
+                sendMessage("User already exists! Try again.");
+            }
             //showAllUsers(); // Debug
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error during registration: " + e.getMessage());
