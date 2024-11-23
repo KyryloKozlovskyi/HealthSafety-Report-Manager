@@ -77,6 +77,29 @@ public class Client {
         }
     }
 
+    private void login() throws IOException, ClassNotFoundException {
+        String response;
+        try {
+            // Conversation with server
+            System.out.println("CONSOLE DEBUG Log in attempt");
+            // Email
+            response = (String) in.readObject();
+            System.out.println(response);
+            response = input.nextLine();
+            sendMessage(response);
+            // password
+            response = (String) in.readObject();
+            System.out.println(response);
+            response = input.nextLine();
+            sendMessage(response);
+            // Verify
+            response = (String) in.readObject();
+            System.out.println(response);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error during log in: " + e.getMessage());
+        }
+    }
+
     // Method to run the client
     public void run() {
         try {
@@ -98,6 +121,9 @@ public class Client {
                 switch (response.trim().toLowerCase()) {
                     case "1":
                         register();
+                        break;
+                    case "2":
+                        login();
                         break;
                 }
             } while (!response.equalsIgnoreCase("0"));

@@ -16,17 +16,17 @@ public class SharedObject implements Serializable {
     }
 
     // Check if the email is unique
-    public boolean isEmailUnique(String email) {
+    public synchronized boolean isEmailUnique(String email) {
         return !emailSet.contains(email);
     }
 
     // Check if the employee ID is unique
-    public boolean isEmployeeIdUnique(String employeeId) {
+    public synchronized boolean isEmployeeIdUnique(String employeeId) {
         return !employeeIdSet.contains(employeeId);
     }
 
     // Add user to the shared object
-    public boolean addUser(String name, String employeeId, String email, String password, String departmentName, String role) {
+    public synchronized boolean addUser(String name, String employeeId, String email, String password, String departmentName, String role) {
         // Check if the email and employee ID are unique before adding to the list
         if (isEmailUnique(email) && isEmployeeIdUnique(employeeId)) {
             User newUser = new User(name, employeeId, email, password, departmentName, role);
@@ -37,6 +37,16 @@ public class SharedObject implements Serializable {
         } else {
             return false;
         }
+    }
+
+    // Method to verify if the email and password are correct
+    public synchronized boolean checkCredentials(String email, String password) {
+        for (User user : users) {
+            if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Method to return all users in the list

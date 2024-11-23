@@ -16,18 +16,6 @@ public class ServerThread extends Thread {
         loadUsers("users.txt");
     }
 
-    // Method to send a message to the client
-    private void sendMessage(String message) {
-        try {
-            out.writeObject(message);
-            out.flush();
-            System.out.println("server>" + message);
-        } catch (IOException ioException) {
-            System.err.println("Error sending message: " + ioException.getMessage());
-            ioException.printStackTrace();
-        }
-    }
-
     // Method to handle user registration. Server side conversation
     private void register() throws IOException, ClassNotFoundException {
         try {
@@ -56,6 +44,31 @@ public class ServerThread extends Thread {
             //showAllUsers(); // Debug
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error during registration: " + e.getMessage());
+        }
+    }
+
+    // Method to handle user login
+    private void login() throws IOException, ClassNotFoundException {
+        sendMessage("Enter email: ");
+        String email = (String) in.readObject();
+        sendMessage("Enter password: ");
+        String password = (String) in.readObject();
+        if (sharedObject.checkCredentials(email, password)) {
+            sendMessage("Login successful! Welcome, " + email);
+        } else {
+            sendMessage("Invalid email or password. Please try again.");
+        }
+    }
+
+    // Method to send a message to the client
+    private void sendMessage(String message) {
+        try {
+            out.writeObject(message);
+            out.flush();
+            System.out.println("server>" + message);
+        } catch (IOException ioException) {
+            System.err.println("Error sending message: " + ioException.getMessage());
+            ioException.printStackTrace();
         }
     }
 
@@ -130,6 +143,9 @@ public class ServerThread extends Thread {
                 switch (response.trim().toLowerCase()) {
                     case "1":
                         register();
+                        break;
+                    case "2":
+                        login();
                         break;
                 }
             } while (!response.equalsIgnoreCase("0"));
