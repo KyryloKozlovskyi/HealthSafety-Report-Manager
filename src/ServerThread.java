@@ -13,6 +13,7 @@ public class ServerThread extends Thread {
     public ServerThread(Socket socket) {
         this.connection = socket;
         sharedObject = new SharedObject();
+        loadUsers("users.txt");
     }
 
     // Method to send a message to the client
@@ -54,6 +55,32 @@ public class ServerThread extends Thread {
         }
     }
 
+    // Method to load users from file to shared object
+    private void loadUsers(String fileName) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] userFields = line.split("~");
+                if (userFields.length == 6) {
+                    String name = userFields[0];
+                    String employeeId = userFields[1];
+                    String email = userFields[2];
+                    String password = userFields[3];
+                    String departmentName = userFields[4];
+                    String role = userFields[5];
+                    sharedObject.addUser(name, employeeId, email, password, departmentName, role);
+                } else {
+                    System.err.println("Invalid user data format in file: " + fileName);
+                }
+            }
+            //System.out.println("DEBUG All users loaded from " + fileName);
+            //showAllUsers();
+        } catch (IOException e) {
+            System.err.println("An error occurred while reading the file: " + fileName);
+            e.printStackTrace();
+        }
+    }
+
     // Method to show all users DEBUG
     private void showAllUsers() throws IOException {
         LinkedList<User> users = sharedObject.getAllUsers();
@@ -61,7 +88,8 @@ public class ServerThread extends Thread {
         for (User user : users) {
             userInfo.append(user.getName()).append(", ").append(user.getEmployeeId()).append(", ").append(user.getEmail()).append("\n");
         }
-        sendMessage(userInfo.toString());
+        //sendMessage(userInfo.toString());
+        System.out.println(userInfo);
     }
 
     // Method to write data to a file
