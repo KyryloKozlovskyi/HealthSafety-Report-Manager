@@ -1,7 +1,6 @@
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.util.LinkedList;
 
 public class ServerThread extends Thread {
     private Socket connection;
@@ -16,7 +15,7 @@ public class ServerThread extends Thread {
         sharedObject = new SharedObject();
     }
 
-    // Method to send message to client
+    // Method to send a message to the client
     private void sendMessage(String message) {
         try {
             out.writeObject(message);
@@ -28,11 +27,11 @@ public class ServerThread extends Thread {
         }
     }
 
-    // Method to handle user registration on server side
+    // Method to handle user registration. Server side conversation
     private void register() throws IOException, ClassNotFoundException {
         try {
             // Conversation with client
-            System.out.println("DEBUG Registering user");
+            System.out.println("CONSOLE DEBUG Registering user");
             sendMessage("Enter name: ");
             String name = (String) in.readObject();
             sendMessage("Enter employee ID: ");
@@ -45,11 +44,38 @@ public class ServerThread extends Thread {
             String departmentName = (String) in.readObject();
             sendMessage("Enter role: ");
             String role = (String) in.readObject();
-            // Verify
-            sendMessage("You entered the following data: \nName: " + name + "\nEmployee ID: " + employeeId + "\nEmail: " + email + "\nPassword: " + password + "\nDepartment Name: " + departmentName + "\nRole: " + role);
+            // Verify data
+            //sendMessage("You entered the following data: \nName: " + name + "\nEmployee ID: " + employeeId + "\nEmail: " + email + "\nPassword: " + password + "\nDepartment Name: " + departmentName + "\nRole: " + role);
             sharedObject.addUser(name, employeeId, email, password, departmentName, role);
+            writeSharedObjectToFile("users.txt");
+            //showAllUsers(); // Debug
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error during registration: " + e.getMessage());
+        }
+    }
+
+    // Method to show all users DEBUG
+    private void showAllUsers() throws IOException {
+        LinkedList<User> users = sharedObject.getAllUsers();
+        StringBuilder userInfo = new StringBuilder("DEBUG Current Registered Users:\n");
+        for (User user : users) {
+            userInfo.append(user.getName()).append(", ").append(user.getEmployeeId()).append(", ").append(user.getEmail()).append("\n");
+        }
+        sendMessage(userInfo.toString());
+    }
+
+    // Method to write data to a file
+    private void writeSharedObjectToFile(String fileName) {
+        LinkedList<User> users = sharedObject.getAllUsers();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            for (User user : users) {
+                writer.write(user.getName() + "~" + user.getEmployeeId() + "~" + user.getEmail() + "~" + user.getPassword() + "~" + user.getDepartmentName() + "~" + user.getRole());
+                writer.newLine();
+            }
+            System.out.println("Data successfully written to " + fileName);
+        } catch (IOException e) {
+            System.err.println("An error occurred while writing to file: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -69,11 +95,12 @@ public class ServerThread extends Thread {
             do {
                 sendMessage("Choose an option: 1 - Register, 2 - Log in, 0 - Exit");
                 response = (String) in.readObject();
-                choice = response;
-            } while (!response.equalsIgnoreCase("1") && !response.equalsIgnoreCase("2") && !response.equalsIgnoreCase("0"));
-            if (choice.equalsIgnoreCase("1")) {
-                register();
-            }
+                switch (response.trim().toLowerCase()) {
+                    case "1":
+                        register();
+                        break;
+                }
+            } while (!response.equalsIgnoreCase("0"));
         } catch (IOException ioException) {
             System.err.println("IO Exception: " + ioException.getMessage());
             ioException.printStackTrace();

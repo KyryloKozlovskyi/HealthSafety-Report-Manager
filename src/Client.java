@@ -30,12 +30,12 @@ public class Client {
         }
     }
 
-    // Method for user registration
+    // Method to register new users. Client side conversation
     private void register() throws IOException, ClassNotFoundException {
         String response;
         try {
             // Conversation with server
-            System.out.println("DEBUG Registering user");
+            System.out.println("CONSOLE DEBUG Registering user");
             // Name
             response = (String) in.readObject();
             System.out.println(response);
@@ -66,9 +66,12 @@ public class Client {
             System.out.println(response);
             response = input.nextLine();
             sendMessage(response);
-            // Verify
-            response = (String) in.readObject();
-            System.out.println(response);
+            // Verify DEBUG
+            //response = (String) in.readObject();
+            //System.out.println(response);
+            // DEBUG
+            //response = (String) in.readObject();
+            //System.out.println(response);
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error during registration: " + e.getMessage());
         }
@@ -92,11 +95,12 @@ public class Client {
                 System.out.println(response);
                 response = input.nextLine();
                 sendMessage(response);
-                choice = response;
-            } while (!response.equalsIgnoreCase("1") && !response.equalsIgnoreCase("2") && !response.equalsIgnoreCase("0"));
-            if (choice.equalsIgnoreCase("1")) {
-                register();
-            }
+                switch (response.trim().toLowerCase()) {
+                    case "1":
+                        register();
+                        break;
+                }
+            } while (!response.equalsIgnoreCase("0"));
         } catch (IOException ioException) {
             System.err.println("IO Exception: " + ioException.getMessage());
             ioException.printStackTrace();
