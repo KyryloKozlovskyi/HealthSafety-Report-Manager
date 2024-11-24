@@ -12,6 +12,7 @@ public class Client {
     private ObjectInputStream in;
     private Socket connection;
     private String choice;
+    private boolean loggedIn;
 
     // Constructor
     public Client() {
@@ -95,6 +96,12 @@ public class Client {
             // Verify
             response = (String) in.readObject();
             System.out.println(response);
+
+            // Get flag
+            response = (String) in.readObject();
+            //System.out.println(response);  // Debug
+            loggedIn = Boolean.parseBoolean(response);
+
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error during log in: " + e.getMessage());
         }
@@ -125,6 +132,15 @@ public class Client {
                     case "2":
                         login();
                         break;
+                }
+                c
+                if (loggedIn) {
+                    do {
+                        response = (String) in.readObject();
+                        System.out.println(response);
+                        response = input.nextLine();
+                        sendMessage(response);
+                    } while (!response.equalsIgnoreCase("0"));
                 }
             } while (!response.equalsIgnoreCase("0"));
         } catch (IOException ioException) {

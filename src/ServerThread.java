@@ -8,6 +8,7 @@ public class ServerThread extends Thread {
     private ObjectInputStream in;
     private String choice;
     private SharedObject sharedObject;
+    private boolean loggedIn;
 
     // Constructor
     public ServerThread(Socket socket) {
@@ -48,15 +49,17 @@ public class ServerThread extends Thread {
     }
 
     // Method to handle user login
-    private void login() throws IOException, ClassNotFoundException {
+    private boolean login() throws IOException, ClassNotFoundException {
         sendMessage("Enter email: ");
         String email = (String) in.readObject();
         sendMessage("Enter password: ");
         String password = (String) in.readObject();
         if (sharedObject.checkCredentials(email, password)) {
             sendMessage("Login successful! Welcome, " + email);
+            return true;
         } else {
             sendMessage("Invalid email or password. Please try again.");
+            return false;
         }
     }
 
@@ -145,8 +148,21 @@ public class ServerThread extends Thread {
                         register();
                         break;
                     case "2":
-                        login();
+                        loggedIn = login();
+                        sendMessage(String.valueOf(loggedIn));
                         break;
+                }
+                // If logged in, show menu
+                if (loggedIn) {
+                    do {
+                        sendMessage("Choose an option: 1 - Create a report, 2 - Retrieve all reports, 3 - Assign the report, 4 - View assigned reports, 5 - Update password, 0 - Log out");
+                        response = (String) in.readObject();
+                        switch (response.trim().toLowerCase()) {
+                            case "1":
+                                showAllUsers(); // test
+                                break;
+                        }
+                    } while (!response.equalsIgnoreCase("0"));
                 }
             } while (!response.equalsIgnoreCase("0"));
         } catch (IOException ioException) {
