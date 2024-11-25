@@ -2,15 +2,15 @@ import java.util.Date;
 
 // Report class to store report data
 public class Report {
-    private String reportType; // Stores report type (Accident Report/New Health/Safety Risk Report)
+    private ReportType reportType; // Stores report type (Accident Report/New Health/Safety Risk Report)
     private String reportId;  // Stores unique ID
     private Date date; // Stores date of report creation
     private String employeeId; // Stores employeeId of the Report Creation
-    private String status; // Stores report status ( Open/Assigned/Closed)
+    private ReportStatus status; // Stores report status ( Open/Assigned/Closed)
     private String assignedEmployee; // Stores employeeId of the employee assigned to the report
 
     // Constructor
-    public Report(String reportType, String reportId, Date date, String employeeId, String status, String assignedEmployee) {
+    public Report(ReportType reportType, String reportId, Date date, String employeeId, ReportStatus status, String assignedEmployee) {
         this.reportType = reportType;
         this.reportId = reportId;
         this.date = date;
@@ -20,11 +20,11 @@ public class Report {
     }
 
     // Getters and Setters
-    public String getReportType() {
+    public ReportType getReportType() {
         return reportType;
     }
 
-    public void setReportType(String reportType) {
+    public void setReportType(ReportType reportType) {
         this.reportType = reportType;
     }
 
@@ -52,11 +52,11 @@ public class Report {
         this.employeeId = employeeId;
     }
 
-    public String getStatus() {
+    public ReportStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ReportStatus status) {
         this.status = status;
     }
 
@@ -66,5 +66,10 @@ public class Report {
 
     public void setAssignedEmployee(String assignedEmployee) {
         this.assignedEmployee = assignedEmployee;
+    }
+
+    @Override
+    public String toString() {
+        return "Report{" + "reportType=" + reportType + ", reportId='" + reportId + '\'' + ", date=" + date + ", employeeId='" + employeeId + '\'' + ", status=" + status + ", assignedEmployee='" + assignedEmployee + '\'' + '}';
     }
 }

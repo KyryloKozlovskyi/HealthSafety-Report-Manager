@@ -1,6 +1,8 @@
 import java.io.*;
 import java.net.Socket;
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.Random;
 
 public class ServerThread extends Thread {
     private Socket connection;
@@ -9,6 +11,7 @@ public class ServerThread extends Thread {
     private String choice;
     private SharedObject sharedObject;
     private boolean loggedIn;
+    private String loggedInUser;
 
     // Constructor
     public ServerThread(Socket socket) {
@@ -29,6 +32,17 @@ public class ServerThread extends Thread {
         }
     }
 
+    // Method to get the current date and time
+    private Date getCurrentDateTime() {
+        return new Date();
+    }
+
+    // Method to generate a random number between 1 and 100
+    private int generateRandomNumber() {
+        Random random = new Random();
+        return random.nextInt(1000) + 1;
+    }
+
     // Method to show all users DEBUG
     private void showAllUsers() throws IOException {
         LinkedList<User> users = sharedObject.getAllUsers();
@@ -45,7 +59,7 @@ public class ServerThread extends Thread {
     private void register() throws IOException, ClassNotFoundException {
         try {
             // Conversation with client
-            System.out.println("CONSOLE DEBUG Registering user");
+            //System.out.println("CONSOLE DEBUG Registering user");
             sendMessage("Enter name: ");
             String name = (String) in.readObject();
             sendMessage("Enter employee ID: ");
@@ -81,6 +95,7 @@ public class ServerThread extends Thread {
         // Compare credentials with the ones in the shared object
         if (sharedObject.checkCredentials(email, password)) {
             sendMessage("Login successful! Welcome, " + email);
+            loggedInUser = email;
             return true;
         } else {
             sendMessage("Invalid email or password. Please try again.");
@@ -135,6 +150,36 @@ public class ServerThread extends Thread {
         }
     }
 
+    // Report related methods
+    // Method to handle a report creation. Server side conversation
+    private void createReport() throws IOException, ClassNotFoundException {
+        try {
+            // Get Report Type from the user
+            sendMessage("Choose report type: 1 - Accident, 2 - Risk");
+            int reportTypeChoice = Integer.parseInt((String) in.readObject());
+            // Validate and set Report Type
+            ReportType reportType;
+            switch (reportTypeChoice) {
+                case 1:
+                    reportType = ReportType.ACCIDENT;
+                    break;
+                case 2:
+                    reportType = ReportType.RISK;
+                    break;
+                default:
+                    sendMessage("Invalid report type. Please enter 1 or 2.");
+                    return;
+            }
+            // Create a new report and add it to the shared object
+            Report report = new Report(reportType, String.valueOf(generateRandomNumber()), getCurrentDateTime(), sharedObject.getUserName(loggedInUser), ReportStatus.OPEN, "NONE");
+            sendMessage("Report:  " + report.toString());
+            //sharedObject.addReport(report);
+        } catch (IOException | ClassNotFoundException | NumberFormatException e) {
+            sendMessage("An error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     // Override run method to handle client requests. Runs the thread.
     @Override
     public void run() {
@@ -168,7 +213,7 @@ public class ServerThread extends Thread {
                         response = (String) in.readObject();
                         switch (response.trim().toLowerCase()) {
                             case "1":
-                                //showAllUsers(); // test
+                                createReport();
                                 break;
                         }
                     } while (!response.equalsIgnoreCase("0"));

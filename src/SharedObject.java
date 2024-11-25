@@ -57,5 +57,14 @@ public class SharedObject {
         return new LinkedList<>(users); // Return a shallow copy to preserve encapsulation
     }
 
+    public synchronized String getUserName(String email) {
+        String name = "";
+        for (User user : users) {
+            if (user.getEmail().equals(email)) {
+                name = user.getName();
+            }
+        }
+        return name;
+    }
     // Report related methods
 }

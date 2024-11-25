@@ -108,6 +108,24 @@ public class Client {
         }
     }
 
+    private void createReport() throws IOException, ClassNotFoundException {
+        String response;
+
+        try {
+            // Report Type
+            response = (String) in.readObject();
+            System.out.println(response);
+            response = input.nextLine();
+            sendMessage(response);
+
+            // Verify
+            response = (String) in.readObject();
+            System.out.println(response);
+        } catch (IOException | ClassNotFoundException | NumberFormatException e) {
+            System.err.println("An error occurred: " + e.getMessage());
+        }
+    }
+
     // Method to run the client
     public void run() {
         try {
@@ -140,6 +158,11 @@ public class Client {
                         System.out.println(response);
                         response = input.nextLine();
                         sendMessage(response);
+                        switch (response.trim().toLowerCase()) {
+                            case "1":
+                                createReport();
+                                break;
+                        }
                     } while (!response.equalsIgnoreCase("0"));
                 }
             } while (!response.equalsIgnoreCase("0"));
