@@ -19,7 +19,7 @@ public class Client {
         input = new Scanner(System.in);
     }
 
-    // Method to send message to server
+    // Method to send a message to the server
     private void sendMessage(String message) {
         try {
             out.writeObject(message);
@@ -31,6 +31,7 @@ public class Client {
         }
     }
 
+    // User related methods
     // Method to register new users. Client side conversation
     private void register() throws IOException, ClassNotFoundException {
         String response;
@@ -78,11 +79,12 @@ public class Client {
         }
     }
 
+    // Method to login users. Client side conversation
     private void login() throws IOException, ClassNotFoundException {
         String response;
         try {
             // Conversation with server
-            System.out.println("CONSOLE DEBUG Log in attempt");
+            //System.out.println("CONSOLE DEBUG Log in attempt");
             // Email
             response = (String) in.readObject();
             System.out.println(response);
@@ -101,7 +103,6 @@ public class Client {
             response = (String) in.readObject();
             //System.out.println(response);  // Debug
             loggedIn = Boolean.parseBoolean(response);
-
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error during log in: " + e.getMessage());
         }
@@ -113,7 +114,7 @@ public class Client {
             connection = new Socket(SERVER_ADDRESS, SERVER_PORT); // Create a socket to connect to the server
             out = new ObjectOutputStream(connection.getOutputStream()); // Create output stream to send data to the server
             in = new ObjectInputStream(connection.getInputStream()); // Create input stream to receive data from the server
-            System.out.println("DEBUG Client: Client is running on port: " + connection.getLocalPort());
+            //System.out.println("DEBUG Client: Client is running on port: " + connection.getLocalPort());
             // Client -> Server conversation
             String response;
             // Receive and print the welcome message from the server
@@ -133,7 +134,6 @@ public class Client {
                         login();
                         break;
                 }
-                c
                 if (loggedIn) {
                     do {
                         response = (String) in.readObject();

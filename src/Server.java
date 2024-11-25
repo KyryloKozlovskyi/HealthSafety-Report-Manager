@@ -9,11 +9,11 @@ public class Server {
     public static void main(String[] args) {
         // Create a server socket to listen for client connections
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("DEBUG Server: Server is running on port: " + PORT);
+            //System.out.println("DEBUG Server: Server is running on port: " + PORT);
             while (true) {
                 // Wait for a client connection
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("DEBUG Server: New client connected: " + clientSocket.getInetAddress());
+                //System.out.println("DEBUG Server: New client connected: " + clientSocket.getInetAddress());
                 // Create and start a new thread for each client connection
                 ServerThread handler = new ServerThread(clientSocket);
                 handler.start();

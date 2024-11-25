@@ -1,7 +1,5 @@
-import java.io.Serializable;
-
 // User class to store user data
-public class User implements Serializable {
+public class User {
     private String name; // Stores user name
     private String employeeId; // Stores unique ID
     private String email; // Stores user unique email

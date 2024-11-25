@@ -17,6 +17,30 @@ public class ServerThread extends Thread {
         loadUsers("users.txt");
     }
 
+    // Method to send a message to the client
+    private void sendMessage(String message) {
+        try {
+            out.writeObject(message);
+            out.flush();
+            System.out.println("server>" + message);
+        } catch (IOException ioException) {
+            System.err.println("Error sending message: " + ioException.getMessage());
+            ioException.printStackTrace();
+        }
+    }
+
+    // Method to show all users DEBUG
+    private void showAllUsers() throws IOException {
+        LinkedList<User> users = sharedObject.getAllUsers();
+        StringBuilder userInfo = new StringBuilder("DEBUG Current Registered Users:\n");
+        for (User user : users) {
+            userInfo.append(user.getName()).append(", ").append(user.getEmployeeId()).append(", ").append(user.getEmail()).append("\n");
+        }
+        //sendMessage(userInfo.toString());
+        System.out.println(userInfo);
+    }
+
+    // User related methods
     // Method to handle user registration. Server side conversation
     private void register() throws IOException, ClassNotFoundException {
         try {
@@ -35,7 +59,6 @@ public class ServerThread extends Thread {
             sendMessage("Enter role: ");
             String role = (String) in.readObject();
             // Verify data
-            //sendMessage("You entered the following data: \nName: " + name + "\nEmployee ID: " + employeeId + "\nEmail: " + email + "\nPassword: " + password + "\nDepartment Name: " + departmentName + "\nRole: " + role);
             if (sharedObject.addUser(name, employeeId, email, password, departmentName, role)) {
                 writeSharedObjectToFile("users.txt");
                 sendMessage("User successfully registered!");
@@ -48,12 +71,14 @@ public class ServerThread extends Thread {
         }
     }
 
-    // Method to handle user login
+    // Method to handle user login returns true if successful
     private boolean login() throws IOException, ClassNotFoundException {
+        // Get credentials from the user
         sendMessage("Enter email: ");
         String email = (String) in.readObject();
         sendMessage("Enter password: ");
         String password = (String) in.readObject();
+        // Compare credentials with the ones in the shared object
         if (sharedObject.checkCredentials(email, password)) {
             sendMessage("Login successful! Welcome, " + email);
             return true;
@@ -63,24 +88,15 @@ public class ServerThread extends Thread {
         }
     }
 
-    // Method to send a message to the client
-    private void sendMessage(String message) {
-        try {
-            out.writeObject(message);
-            out.flush();
-            System.out.println("server>" + message);
-        } catch (IOException ioException) {
-            System.err.println("Error sending message: " + ioException.getMessage());
-            ioException.printStackTrace();
-        }
-    }
-
-    // Method to load users from file to shared object
+    // Method to load users from file to the shared object
     private void loadUsers(String fileName) {
+        // Read data from file
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                // Split the line
                 String[] userFields = line.split("~");
+                // Add user to the shared object
                 if (userFields.length == 6) {
                     String name = userFields[0];
                     String employeeId = userFields[1];
@@ -101,21 +117,13 @@ public class ServerThread extends Thread {
         }
     }
 
-    // Method to show all users DEBUG
-    private void showAllUsers() throws IOException {
-        LinkedList<User> users = sharedObject.getAllUsers();
-        StringBuilder userInfo = new StringBuilder("DEBUG Current Registered Users:\n");
-        for (User user : users) {
-            userInfo.append(user.getName()).append(", ").append(user.getEmployeeId()).append(", ").append(user.getEmail()).append("\n");
-        }
-        //sendMessage(userInfo.toString());
-        System.out.println(userInfo);
-    }
-
     // Method to write data to a file
     private void writeSharedObjectToFile(String fileName) {
+        // Get all users from the shared object
         LinkedList<User> users = sharedObject.getAllUsers();
+        // Open a file to write data to
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            // Write data to the file
             for (User user : users) {
                 writer.write(user.getName() + "~" + user.getEmployeeId() + "~" + user.getEmail() + "~" + user.getPassword() + "~" + user.getDepartmentName() + "~" + user.getRole());
                 writer.newLine();
@@ -127,6 +135,7 @@ public class ServerThread extends Thread {
         }
     }
 
+    // Override run method to handle client requests. Runs the thread.
     @Override
     public void run() {
         try {
@@ -134,12 +143,12 @@ public class ServerThread extends Thread {
             out = new ObjectOutputStream(connection.getOutputStream());
             in = new ObjectInputStream(connection.getInputStream());
 
-            System.out.println("DEBUG Thread: Handler thread is running for client: " + connection.getInetAddress());
+            //System.out.println("DEBUG Thread: Handler thread is running for client: " + connection.getInetAddress());
             // Server -> Client conversation
             // Send welcome message to client
             sendMessage("Welcome to the Health and Safety Report Manager!");
             String response;
-            // Menu loop
+            // Log in menu loop
             do {
                 sendMessage("Choose an option: 1 - Register, 2 - Log in, 0 - Exit");
                 response = (String) in.readObject();
@@ -155,11 +164,11 @@ public class ServerThread extends Thread {
                 // If logged in, show menu
                 if (loggedIn) {
                     do {
-                        sendMessage("Choose an option: 1 - Create a report, 2 - Retrieve all reports, 3 - Assign the report, 4 - View assigned reports, 5 - Update password, 0 - Log out");
+                        sendMessage("Choose an option: 1 - Create a report, 2 - Retrieve all reports, 3 - Assign the report, 4 - View assigned reports, 5 - Update password, 0 - Exit");
                         response = (String) in.readObject();
                         switch (response.trim().toLowerCase()) {
                             case "1":
-                                showAllUsers(); // test
+                                //showAllUsers(); // test
                                 break;
                         }
                     } while (!response.equalsIgnoreCase("0"));

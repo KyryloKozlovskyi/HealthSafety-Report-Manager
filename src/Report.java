@@ -1,17 +1,16 @@
-import java.io.Serializable;
 import java.util.Date;
 
 // Report class to store report data
-public class Report implements Serializable {
+public class Report {
     private String reportType; // Stores report type (Accident Report/New Health/Safety Risk Report)
-    private int reportId;  // Stores unique ID
+    private String reportId;  // Stores unique ID
     private Date date; // Stores date of report creation
-    private int employeeId; // Stores employeeId of the Report Creation
+    private String employeeId; // Stores employeeId of the Report Creation
     private String status; // Stores report status ( Open/Assigned/Closed)
-    private int assignedEmployee; // Stores employeeId of the employee assigned to the report
+    private String assignedEmployee; // Stores employeeId of the employee assigned to the report
 
     // Constructor
-    public Report(String reportType, int reportId, Date date, int employeeId, String status, int assignedEmployee) {
+    public Report(String reportType, String reportId, Date date, String employeeId, String status, String assignedEmployee) {
         this.reportType = reportType;
         this.reportId = reportId;
         this.date = date;
@@ -29,11 +28,11 @@ public class Report implements Serializable {
         this.reportType = reportType;
     }
 
-    public int getReportId() {
+    public String getReportId() {
         return reportId;
     }
 
-    public void setReportId(int reportId) {
+    public void setReportId(String reportId) {
         this.reportId = reportId;
     }
 
@@ -45,11 +44,11 @@ public class Report implements Serializable {
         this.date = date;
     }
 
-    public int getEmployeeId() {
+    public String getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId(int employeeId) {
+    public void setEmployeeId(String employeeId) {
         this.employeeId = employeeId;
     }
 
@@ -61,11 +60,11 @@ public class Report implements Serializable {
         this.status = status;
     }
 
-    public int getAssignedEmployee() {
+    public String getAssignedEmployee() {
         return assignedEmployee;
     }
 
-    public void setAssignedEmployee(int assignedEmployee) {
+    public void setAssignedEmployee(String assignedEmployee) {
         this.assignedEmployee = assignedEmployee;
     }
 }
