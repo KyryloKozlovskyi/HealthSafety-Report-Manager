@@ -126,6 +126,17 @@ public class Client {
         }
     }
 
+    private void showAllReports() throws IOException, ClassNotFoundException {
+        String response;
+        try {
+            // Verify
+            response = (String) in.readObject();
+            System.out.println(response);
+        } catch (IOException | ClassNotFoundException | NumberFormatException e) {
+            System.err.println("An error occurred: " + e.getMessage());
+        }
+    }
+
     // Method to run the client
     public void run() {
         try {
@@ -161,6 +172,9 @@ public class Client {
                         switch (response.trim().toLowerCase()) {
                             case "1":
                                 createReport();
+                                break;
+                            case "2":
+                                showAllReports();
                                 break;
                         }
                     } while (!response.equalsIgnoreCase("0"));

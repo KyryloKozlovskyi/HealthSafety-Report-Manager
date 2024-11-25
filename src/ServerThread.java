@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.Socket;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Random;
@@ -18,6 +20,7 @@ public class ServerThread extends Thread {
         this.connection = socket;
         sharedObject = new SharedObject();
         loadUsers("users.txt");
+        loadReports("reports.txt");
     }
 
     // Method to send a message to the client
@@ -206,6 +209,49 @@ public class ServerThread extends Thread {
         }
     }
 
+    // Method to load users from file to the shared object
+    private void loadReports(String fileName) {
+        Report report;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+
+        // Read data from file
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Split the line
+                String[] reportFields = line.split("~");
+                // Add user to the shared object
+                if (reportFields.length == 6) {
+                    ReportType reportType = ReportType.valueOf(reportFields[0]);
+                    String reportId = reportFields[1];
+                    Date date = dateFormat.parse(reportFields[2]);
+                    String employeeId = reportFields[3];
+                    ReportStatus status = ReportStatus.valueOf(reportFields[4]);
+                    String assignedEmployee = reportFields[5];
+                    report = new Report(reportType, reportId, date, employeeId, status, assignedEmployee);
+                    sharedObject.addReport(report);
+                }
+            }
+        } catch (ParseException e) {
+            System.err.println("Date parsing error: " + e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("An error occurred while reading the file: " + fileName);
+            e.printStackTrace();
+        }
+    }
+
+    // Method to show all users DEBUG
+    private void showAllReports() throws IOException {
+        LinkedList<Report> reports = sharedObject.getAllReports();
+        StringBuilder reportInfo = new StringBuilder("DEBUG Current Registered Reports:\n");
+        for (Report report : reports) {
+            reportInfo.append(report.getReportType()).append(", ").append(report.getReportId()).append(", ").append(report.getDate()).append(", ").append(report.getEmployeeId()).append(", ").append(report.getStatus()).append(", ").append(report.getAssignedEmployee()).append("\n");
+        }
+        sendMessage(reportInfo.toString());
+        //System.out.println(reportInfo);
+    }
+
     // Override run method to handle client requests. Runs the thread.
     @Override
     public void run() {
@@ -240,6 +286,9 @@ public class ServerThread extends Thread {
                         switch (response.trim().toLowerCase()) {
                             case "1":
                                 createReport();
+                                break;
+                            case "2":
+                                showAllReports();
                                 break;
                         }
                     } while (!response.equalsIgnoreCase("0"));
