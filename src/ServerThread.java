@@ -37,10 +37,11 @@ public class ServerThread extends Thread {
         return new Date();
     }
 
-    // Method to generate a random number between 1 and 100
+    // Method to generate a random number
     private int generateRandomNumber() {
-        Random random = new Random();
-        return random.nextInt(1000) + 1;
+        long seed = System.currentTimeMillis();
+        Random random = new Random(seed);
+        return random.nextInt(100000) + 1;
     }
 
     // Method to show all users DEBUG
@@ -73,8 +74,9 @@ public class ServerThread extends Thread {
             sendMessage("Enter role: ");
             String role = (String) in.readObject();
             // Verify data
-            if (sharedObject.addUser(name, employeeId, email, password, departmentName, role)) {
-                writeSharedObjectToFile("users.txt");
+            User user = new User(name, employeeId, email, password, departmentName, role);
+            if (sharedObject.addUser(user)) {
+                writeUsersToFile("users.txt");
                 sendMessage("User successfully registered!");
             } else {
                 sendMessage("User already exists! Try again.");
@@ -105,6 +107,7 @@ public class ServerThread extends Thread {
 
     // Method to load users from file to the shared object
     private void loadUsers(String fileName) {
+        User user;
         // Read data from file
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
@@ -119,7 +122,8 @@ public class ServerThread extends Thread {
                     String password = userFields[3];
                     String departmentName = userFields[4];
                     String role = userFields[5];
-                    sharedObject.addUser(name, employeeId, email, password, departmentName, role);
+                    user = new User(name, employeeId, email, password, departmentName, role);
+                    sharedObject.addUser(user);
                 } else {
                     System.err.println("Invalid user data format in file: " + fileName);
                 }
@@ -133,8 +137,8 @@ public class ServerThread extends Thread {
     }
 
     // Method to write data to a file
-    private void writeSharedObjectToFile(String fileName) {
-        // Get all users from the shared object
+    private void writeUsersToFile(String fileName) {
+        // Get all users and reports from the shared object
         LinkedList<User> users = sharedObject.getAllUsers();
         // Open a file to write data to
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
@@ -143,9 +147,9 @@ public class ServerThread extends Thread {
                 writer.write(user.getName() + "~" + user.getEmployeeId() + "~" + user.getEmail() + "~" + user.getPassword() + "~" + user.getDepartmentName() + "~" + user.getRole());
                 writer.newLine();
             }
-            System.out.println("Data successfully written to " + fileName);
+            System.out.println("User Data successfully written to " + fileName);
         } catch (IOException e) {
-            System.err.println("An error occurred while writing to file: " + e.getMessage());
+            System.err.println("An error occurred while writing users to file: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -171,11 +175,33 @@ public class ServerThread extends Thread {
                     return;
             }
             // Create a new report and add it to the shared object
-            Report report = new Report(reportType, String.valueOf(generateRandomNumber()), getCurrentDateTime(), sharedObject.getUserName(loggedInUser), ReportStatus.OPEN, "NONE");
-            sendMessage("Report:  " + report.toString());
-            //sharedObject.addReport(report);
+            Report report = new Report(reportType, String.valueOf(generateRandomNumber()), getCurrentDateTime(), sharedObject.getUserId(loggedInUser), ReportStatus.OPEN, "NONE");
+            if (sharedObject.addReport(report)) {
+                writeReportsToFile("reports.txt");
+                sendMessage("Report successfully created!");
+            } else {
+                sendMessage("Report already exists! Try again.");
+            }
         } catch (IOException | ClassNotFoundException | NumberFormatException e) {
             sendMessage("An error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Method to write reports data to a file
+    private void writeReportsToFile(String fileName) {
+        // Get all users and reports from the shared object
+        LinkedList<Report> reports = sharedObject.getAllReports();
+        // Open a file to write data to
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            // Write data to the file
+            for (Report report : reports) {
+                writer.write(report.getReportType() + "~" + report.getReportId() + "~" + report.getDate() + "~" + report.getEmployeeId() + "~" + report.getStatus() + "~" + report.getAssignedEmployee());
+                writer.newLine();
+            }
+            System.out.println("User Data successfully written to " + fileName);
+        } catch (IOException e) {
+            System.err.println("An error occurred while writing to file: " + e.getMessage());
             e.printStackTrace();
         }
     }

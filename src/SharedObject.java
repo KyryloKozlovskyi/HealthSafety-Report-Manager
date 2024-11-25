@@ -29,13 +29,12 @@ public class SharedObject {
     }
 
     // Add user to the shared object and return true if successful
-    public synchronized boolean addUser(String name, String employeeId, String email, String password, String departmentName, String role) {
+    public synchronized boolean addUser(User user) {
         // Check if the email and employee ID are unique before adding to the list
-        if (isEmailUnique(email) && isEmployeeIdUnique(employeeId)) {
-            User newUser = new User(name, employeeId, email, password, departmentName, role);
-            users.add(newUser);
-            emailSet.add(email);
-            employeeIdSet.add(employeeId);
+        if (isEmailUnique(user.getEmail()) && isEmployeeIdUnique(user.getEmployeeId())) {
+            users.add(user);
+            emailSet.add(user.getEmail());
+            employeeIdSet.add(user.getEmployeeId());
             return true;
         } else {
             return false;
@@ -57,14 +56,25 @@ public class SharedObject {
         return new LinkedList<>(users); // Return a shallow copy to preserve encapsulation
     }
 
-    public synchronized String getUserName(String email) {
-        String name = "";
+    public synchronized String getUserId(String email) {
+        String id = "";
         for (User user : users) {
             if (user.getEmail().equals(email)) {
-                name = user.getName();
+                id = user.getEmployeeId();
             }
         }
-        return name;
+        return id;
     }
+
     // Report related methods
+    // Add report to the shared object and return true if successful
+    public synchronized boolean addReport(Report report) {
+        reports.add(report);
+        return true;
+    }
+
+    // Method to return all reports in the list
+    public synchronized LinkedList<Report> getAllReports() {
+        return new LinkedList<>(reports); // Return a shallow copy to preserve encapsulation
+    }
 }
