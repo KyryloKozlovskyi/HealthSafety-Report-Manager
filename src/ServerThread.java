@@ -1,26 +1,21 @@
 import java.io.*;
 import java.net.Socket;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Random;
 
 public class ServerThread extends Thread {
-    private Socket connection;
+    private final Socket connection;
     private ObjectOutputStream out;
     private ObjectInputStream in;
-    private String choice;
-    private SharedObject sharedObject;
+    private final SharedObject sharedObject;
     private boolean loggedIn;
     private String loggedInUser;
 
     // Constructor
-    public ServerThread(Socket socket) {
+    public ServerThread(Socket socket, SharedObject sharedObject) {
         this.connection = socket;
-        sharedObject = new SharedObject();
-        loadUsers("users.txt");
-        loadReports("reports.txt");
+        this.sharedObject = sharedObject; // Create shared object inside the server code
     }
 
     // Method to send a message to the client
@@ -38,13 +33,6 @@ public class ServerThread extends Thread {
     // Method to get the current date and time
     private Date getCurrentDateTime() {
         return new Date();
-    }
-
-    // Method to generate a random number
-    private int generateRandomNumber() {
-        long seed = System.currentTimeMillis();
-        Random random = new Random(seed);
-        return random.nextInt(100000) + 1;
     }
 
     // Method to show all users DEBUG
@@ -79,7 +67,7 @@ public class ServerThread extends Thread {
             // Verify data
             User user = new User(name, employeeId, email, password, departmentName, role);
             if (sharedObject.addUser(user)) {
-                writeUsersToFile("users.txt");
+                sharedObject.writeUsersToFile("users.txt");
                 sendMessage("User successfully registered!");
             } else {
                 sendMessage("User already exists! Try again.");
@@ -108,55 +96,6 @@ public class ServerThread extends Thread {
         }
     }
 
-    // Method to load users from file to the shared object
-    private void loadUsers(String fileName) {
-        User user;
-        // Read data from file
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Split the line
-                String[] userFields = line.split("~");
-                // Add user to the shared object
-                if (userFields.length == 6) {
-                    String name = userFields[0];
-                    String employeeId = userFields[1];
-                    String email = userFields[2];
-                    String password = userFields[3];
-                    String departmentName = userFields[4];
-                    String role = userFields[5];
-                    user = new User(name, employeeId, email, password, departmentName, role);
-                    sharedObject.addUser(user);
-                } else {
-                    System.err.println("Invalid user data format in file: " + fileName);
-                }
-            }
-            //System.out.println("DEBUG All users loaded from " + fileName);
-            //showAllUsers();
-        } catch (IOException e) {
-            System.err.println("An error occurred while reading the file: " + fileName);
-            e.printStackTrace();
-        }
-    }
-
-    // Method to write data to a file
-    private void writeUsersToFile(String fileName) {
-        // Get all users and reports from the shared object
-        LinkedList<User> users = sharedObject.getAllUsers();
-        // Open a file to write data to
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            // Write data to the file
-            for (User user : users) {
-                writer.write(user.getName() + "~" + user.getEmployeeId() + "~" + user.getEmail() + "~" + user.getPassword() + "~" + user.getDepartmentName() + "~" + user.getRole());
-                writer.newLine();
-            }
-            System.out.println("User Data successfully written to " + fileName);
-        } catch (IOException e) {
-            System.err.println("An error occurred while writing users to file: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
     // Report related methods
     // Method to handle a report creation. Server side conversation
     private void createReport() throws IOException, ClassNotFoundException {
@@ -178,65 +117,15 @@ public class ServerThread extends Thread {
                     return;
             }
             // Create a new report and add it to the shared object
-            Report report = new Report(reportType, String.valueOf(generateRandomNumber()), getCurrentDateTime(), sharedObject.getUserId(loggedInUser), ReportStatus.OPEN, "NONE");
+            Report report = new Report(reportType, String.valueOf(sharedObject.getAllReports().size() + 1), getCurrentDateTime(), sharedObject.getUserId(loggedInUser), ReportStatus.OPEN, "NONE");
             if (sharedObject.addReport(report)) {
-                writeReportsToFile("reports.txt");
+                sharedObject.writeReportsToFile("reports.txt");
                 sendMessage("Report successfully created!");
             } else {
                 sendMessage("Report already exists! Try again.");
             }
         } catch (IOException | ClassNotFoundException | NumberFormatException e) {
             sendMessage("An error occurred: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // Method to write reports data to a file
-    private void writeReportsToFile(String fileName) {
-        // Get all users and reports from the shared object
-        LinkedList<Report> reports = sharedObject.getAllReports();
-        // Open a file to write data to
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            // Write data to the file
-            for (Report report : reports) {
-                writer.write(report.getReportType() + "~" + report.getReportId() + "~" + report.getDate() + "~" + report.getEmployeeId() + "~" + report.getStatus() + "~" + report.getAssignedEmployee());
-                writer.newLine();
-            }
-            System.out.println("User Data successfully written to " + fileName);
-        } catch (IOException e) {
-            System.err.println("An error occurred while writing to file: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // Method to load users from file to the shared object
-    private void loadReports(String fileName) {
-        Report report;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-
-        // Read data from file
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Split the line
-                String[] reportFields = line.split("~");
-                // Add user to the shared object
-                if (reportFields.length == 6) {
-                    ReportType reportType = ReportType.valueOf(reportFields[0]);
-                    String reportId = reportFields[1];
-                    Date date = dateFormat.parse(reportFields[2]);
-                    String employeeId = reportFields[3];
-                    ReportStatus status = ReportStatus.valueOf(reportFields[4]);
-                    String assignedEmployee = reportFields[5];
-                    report = new Report(reportType, reportId, date, employeeId, status, assignedEmployee);
-                    sharedObject.addReport(report);
-                }
-            }
-        } catch (ParseException e) {
-            System.err.println("Date parsing error: " + e.getMessage());
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.err.println("An error occurred while reading the file: " + fileName);
             e.printStackTrace();
         }
     }
