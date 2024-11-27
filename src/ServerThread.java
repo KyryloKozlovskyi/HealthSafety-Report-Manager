@@ -191,6 +191,22 @@ public class ServerThread extends Thread {
         }
     }
 
+    // Method to return all reports assigned to the logged-in user
+    private void viewAssignedReports() throws IOException {
+        LinkedList<Report> reports = sharedObject.getAllReports();
+        StringBuilder reportInfo = new StringBuilder("Current Registered Reports:\n");
+        for (Report report : reports) {
+            if (report.getAssignedEmployee().equals(sharedObject.getUserId(loggedInUser))) {
+                reportInfo.append(report.getReportType()).append(", ").append(report.getReportId()).append(", ").append(report.getDate()).append(", ").append(report.getEmployeeId()).append(", ").append(report.getStatus()).append(", ").append(report.getAssignedEmployee()).append("\n");
+            }
+        }
+        if (reportInfo.toString().equals("Current Registered Reports:\n")) {
+            reportInfo.append("No reports assigned to you.");
+        }
+        sendMessage(reportInfo.toString());
+        //System.out.println(reportInfo);
+    }
+
     // Override run method to handle client requests. Runs the thread.
     @Override
     public void run() {
@@ -231,6 +247,9 @@ public class ServerThread extends Thread {
                                 break;
                             case "3":
                                 assignEmployee();
+                                break;
+                            case "4":
+                                viewAssignedReports();
                                 break;
                         }
                     } while (!response.equalsIgnoreCase("0"));

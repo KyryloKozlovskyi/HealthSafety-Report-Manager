@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Client {
@@ -185,6 +186,17 @@ public class Client {
         }
     }
 
+    private void viewAssignedReports() throws IOException {
+        String response;
+        try {
+            // Verify
+            response = (String) in.readObject();
+            System.out.println(response);
+        } catch (IOException | ClassNotFoundException | NumberFormatException e) {
+            System.err.println("An error occurred: " + e.getMessage());
+        }
+    }
+
     // Method to run the client
     public void run() {
         try {
@@ -226,6 +238,9 @@ public class Client {
                                 break;
                             case "3":
                                 assignEmployee();
+                                break;
+                            case "4":
+                                viewAssignedReports();
                                 break;
                         }
                     } while (!response.equalsIgnoreCase("0"));
