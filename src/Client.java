@@ -137,6 +137,54 @@ public class Client {
         }
     }
 
+    public void assignEmployee() throws IOException, ClassNotFoundException {
+        String response;
+        try {
+            // Get report ID
+            response = (String) in.readObject();
+            System.out.println(response);
+            String reportId = input.nextLine();
+            sendMessage(reportId);
+
+            // Check server response
+            response = (String) in.readObject();
+            if (response.equals("Report not found! Try again.")) {
+                System.out.println(response);
+                return;
+            }
+
+            // Get employee ID
+            System.out.println(response);
+            String employeeId = input.nextLine();
+            sendMessage(employeeId);
+
+            // Check server response
+            response = (String) in.readObject();
+            if (response.equals("Employee not found! Try again.")) {
+                System.out.println(response);
+                return;
+            }
+
+            // Get report status
+            System.out.println(response);
+            String statusChoice = input.nextLine();
+            sendMessage(statusChoice);
+
+            // Check server response
+            response = (String) in.readObject();
+            if (response.equals("Invalid choice. Status not updated.")) {
+                System.out.println(response);
+                return;
+            }
+
+            // Verify
+            response = (String) in.readObject();
+            System.out.println(response);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("An error occurred: " + e.getMessage());
+        }
+    }
+
     // Method to run the client
     public void run() {
         try {
@@ -175,6 +223,9 @@ public class Client {
                                 break;
                             case "2":
                                 showAllReports();
+                                break;
+                            case "3":
+                                assignEmployee();
                                 break;
                         }
                     } while (!response.equalsIgnoreCase("0"));

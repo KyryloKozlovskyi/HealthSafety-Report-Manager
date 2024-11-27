@@ -141,6 +141,56 @@ public class ServerThread extends Thread {
         //System.out.println(reportInfo);
     }
 
+    // Method to assign an employee to a report
+    public void assignEmployee() throws IOException, ClassNotFoundException {
+        try {
+            // Get report ID
+            sendMessage("Enter report ID: ");
+            String reportId = (String) in.readObject();
+            Report report = sharedObject.getReportById(reportId);
+            if (report == null) {
+                sendMessage("Report not found! Try again.");
+                return;
+            }
+
+            // Get employee ID
+            sendMessage("Enter employee ID: ");
+            String employeeId = (String) in.readObject();
+            if (sharedObject.isEmployeeIdUnique(employeeId)) {
+                sendMessage("Employee not found! Try again.");
+                return;
+            }
+
+            // Get report status
+            sendMessage("Enter report status: 1 - OPEN, 2 - ASSIGNED, 3 - CLOSED");
+            String statusChoice = (String) in.readObject();
+            switch (statusChoice) {
+                case "1":
+                    report.setStatus(ReportStatus.OPEN);
+                    sendMessage("Report status set to OPEN.");
+                    break;
+                case "2":
+                    report.setStatus(ReportStatus.ASSIGNED);
+                    sendMessage("Report status set to ASSIGNED.");
+                    break;
+                case "3":
+                    report.setStatus(ReportStatus.CLOSED);
+                    sendMessage("Report status set to CLOSED.");
+                    break;
+                default:
+                    sendMessage("Invalid choice. Status not updated.");
+                    return;
+            }
+
+            // Assign the report to the employee
+            report.setAssignedEmployee(employeeId);
+            sharedObject.writeReportsToFile("reports.txt");
+            sendMessage("Employee assigned and report status updated successfully.");
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("An error occurred: " + e.getMessage());
+        }
+    }
+
     // Override run method to handle client requests. Runs the thread.
     @Override
     public void run() {
@@ -178,6 +228,9 @@ public class ServerThread extends Thread {
                                 break;
                             case "2":
                                 showAllReports();
+                                break;
+                            case "3":
+                                assignEmployee();
                                 break;
                         }
                     } while (!response.equalsIgnoreCase("0"));

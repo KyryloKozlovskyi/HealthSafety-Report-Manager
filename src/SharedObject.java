@@ -167,6 +167,16 @@ public class SharedObject {
         return new LinkedList<>(reports); // Return a shallow copy to preserve encapsulation
     }
 
+    // Method to get a report by ID
+    public synchronized Report getReportById(String reportId) {
+        for (Report report : reports) {
+            if (report.getReportId().equals(reportId)) {
+                return report;
+            }
+        }
+        return null;
+    }
+
     // Method to write reports data to a file
     public synchronized void writeReportsToFile(String fileName) {
         // Get all users and reports from the shared object
