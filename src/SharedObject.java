@@ -7,9 +7,8 @@ import java.util.LinkedList;
 import java.util.Set;
 
 public class SharedObject {
-    private LinkedList<User> users; // Stores users
-    private LinkedList<Report> reports; // Stores reports
-    // Used for checking if email and employee ID are unique
+    private LinkedList<User> users;
+    private LinkedList<Report> reports;
     private Set<String> emailSet;
     private Set<String> employeeIdSet;
 
@@ -23,8 +22,7 @@ public class SharedObject {
         loadReports("reports.txt");
     }
 
-    //User related methods
-    // Method to load users from file to the shared object
+    // Loads users from file to the shared object
     public synchronized void loadUsers(String fileName) {
         User user;
         // Read data from file
@@ -47,8 +45,6 @@ public class SharedObject {
                     System.err.println("Invalid user data format in file: " + fileName);
                 }
             }
-            //System.out.println("DEBUG All users loaded from " + fileName);
-            //showAllUsers();
         } catch (IOException e) {
             System.err.println("An error occurred while reading the file: " + fileName);
             e.printStackTrace();
@@ -79,7 +75,7 @@ public class SharedObject {
         }
     }
 
-    // Method to verify if the email and password are correct and return true if successful
+    // Verifies if the email and password are correct and return true if successful
     public synchronized boolean checkCredentials(String email, String password) {
         for (User user : users) {
             if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
@@ -89,11 +85,12 @@ public class SharedObject {
         return false;
     }
 
-    // Method to return all users in the list
+    // Returns all users in the list
     public synchronized LinkedList<User> getAllUsers() {
         return new LinkedList<>(users); // Return a shallow copy to preserve encapsulation
     }
 
+    // Returns the user object by email
     public synchronized String getUserId(String email) {
         String id = "";
         for (User user : users) {
@@ -104,10 +101,9 @@ public class SharedObject {
         return id;
     }
 
-    // Report related methods
-    // Method to write data to a file
+    // Write users data to a file
     public synchronized void writeUsersToFile(String fileName) {
-        // Get all users and reports from the shared object
+        // Get all users from the shared object
         LinkedList<User> users = getAllUsers();
         // Open a file to write data to
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
@@ -123,11 +119,10 @@ public class SharedObject {
         }
     }
 
-    // Method to load users from file to the shared object
+    // Loads users from file to the shared object
     public synchronized void loadReports(String fileName) {
         Report report;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy"); // Date format
         // Read data from file
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
@@ -162,12 +157,12 @@ public class SharedObject {
         return true;
     }
 
-    // Method to return all reports in the list
+    // Returns all reports in the list
     public synchronized LinkedList<Report> getAllReports() {
         return new LinkedList<>(reports); // Return a shallow copy to preserve encapsulation
     }
 
-    // Method to get a report by ID
+    // Get a report by ID
     public synchronized Report getReportById(String reportId) {
         for (Report report : reports) {
             if (report.getReportId().equals(reportId)) {
@@ -177,9 +172,9 @@ public class SharedObject {
         return null;
     }
 
-    // Method to write reports data to a file
+    // Writes reports to the file
     public synchronized void writeReportsToFile(String fileName) {
-        // Get all users and reports from the shared object
+        // Get all reports from the shared object
         LinkedList<Report> reports = getAllReports();
         // Open a file to write data to
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
@@ -193,5 +188,18 @@ public class SharedObject {
             System.err.println("An error occurred while writing to file: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    // Updates the password of the user
+    public boolean updatePassword(String loggedInUser, String newPassword) {
+        for (User user : users) {
+            // Check if the email matches the logged-in user
+            if (user.getEmail().equals(loggedInUser)) {
+                user.setPassword(newPassword); // Update the password
+                writeUsersToFile("users.txt");
+                return true;
+            }
+        }
+        return false;
     }
 }

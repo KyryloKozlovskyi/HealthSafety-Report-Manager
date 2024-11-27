@@ -2,17 +2,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Client {
     private static final String SERVER_ADDRESS = "localhost";
     private static final int SERVER_PORT = 9090;
-    private Scanner input;
+    private final Scanner input;
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private Socket connection;
-    private String choice;
     private boolean loggedIn;
 
     // Constructor
@@ -20,8 +18,8 @@ public class Client {
         input = new Scanner(System.in);
     }
 
-    // Method to send a message to the server
-    private void sendMessage(String message) {
+    // Sends a message to the server
+    private void sendMessage(String message) throws IOException {
         try {
             out.writeObject(message);
             out.flush();
@@ -32,13 +30,10 @@ public class Client {
         }
     }
 
-    // User related methods
-    // Method to register new users. Client side conversation
+    // Handles client side conversation for user registration
     private void register() throws IOException, ClassNotFoundException {
         String response;
         try {
-            // Conversation with server
-            System.out.println("CONSOLE DEBUG Registering user");
             // Name
             response = (String) in.readObject();
             System.out.println(response);
@@ -72,26 +67,21 @@ public class Client {
             // Verify
             response = (String) in.readObject();
             System.out.println(response);
-            // DEBUG
-            //response = (String) in.readObject();
-            //System.out.println(response);
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error during registration: " + e.getMessage());
         }
     }
 
-    // Method to login users. Client side conversation
+    // Handles client side conversation for user login
     private void login() throws IOException, ClassNotFoundException {
         String response;
         try {
-            // Conversation with server
-            //System.out.println("CONSOLE DEBUG Log in attempt");
             // Email
             response = (String) in.readObject();
             System.out.println(response);
             response = input.nextLine();
             sendMessage(response);
-            // password
+            // Password
             response = (String) in.readObject();
             System.out.println(response);
             response = input.nextLine();
@@ -99,118 +89,128 @@ public class Client {
             // Verify
             response = (String) in.readObject();
             System.out.println(response);
-
-            // Get flag
+            // Log-in Flag
             response = (String) in.readObject();
-            //System.out.println(response);  // Debug
             loggedIn = Boolean.parseBoolean(response);
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error during log in: " + e.getMessage());
         }
     }
 
-    private void createReport() throws IOException, ClassNotFoundException {
+    // Handles client side conversation for creating a report
+    private void createReport() throws IOException, ClassNotFoundException, NumberFormatException {
         String response;
-
         try {
             // Report Type
             response = (String) in.readObject();
             System.out.println(response);
             response = input.nextLine();
             sendMessage(response);
-
             // Verify
             response = (String) in.readObject();
             System.out.println(response);
         } catch (IOException | ClassNotFoundException | NumberFormatException e) {
-            System.err.println("An error occurred: " + e.getMessage());
+            System.err.println("Error during report creation: " + e.getMessage());
         }
     }
 
-    private void showAllReports() throws IOException, ClassNotFoundException {
+    // Handles displaying all reports on the client side
+    private void showAllReports() throws IOException, ClassNotFoundException, NumberFormatException {
         String response;
         try {
             // Verify
             response = (String) in.readObject();
             System.out.println(response);
         } catch (IOException | ClassNotFoundException | NumberFormatException e) {
-            System.err.println("An error occurred: " + e.getMessage());
+            System.err.println("Error during report(all) output: " + e.getMessage());
         }
     }
 
+    // Handles client side conversation for assigning an employee to a report and updating the status
     public void assignEmployee() throws IOException, ClassNotFoundException {
         String response;
         try {
-            // Get report ID
+            // Report ID
             response = (String) in.readObject();
             System.out.println(response);
             String reportId = input.nextLine();
             sendMessage(reportId);
-
             // Check server response
             response = (String) in.readObject();
             if (response.equals("Report not found! Try again.")) {
                 System.out.println(response);
                 return;
             }
-
-            // Get employee ID
+            // Employee ID
             System.out.println(response);
             String employeeId = input.nextLine();
             sendMessage(employeeId);
-
             // Check server response
             response = (String) in.readObject();
             if (response.equals("Employee not found! Try again.")) {
                 System.out.println(response);
                 return;
             }
-
-            // Get report status
+            // Report status
             System.out.println(response);
             String statusChoice = input.nextLine();
             sendMessage(statusChoice);
-
             // Check server response
             response = (String) in.readObject();
             if (response.equals("Invalid choice. Status not updated.")) {
                 System.out.println(response);
                 return;
             }
-
             // Verify
             response = (String) in.readObject();
             System.out.println(response);
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("An error occurred: " + e.getMessage());
+            System.err.println("Error during assigned employee/status update: " + e.getMessage());
         }
     }
 
-    private void viewAssignedReports() throws IOException {
+    // Handles client side conversation for viewing assigned reports
+    private void showAssignedReports() throws IOException, ClassNotFoundException, NumberFormatException {
         String response;
         try {
             // Verify
             response = (String) in.readObject();
             System.out.println(response);
         } catch (IOException | ClassNotFoundException | NumberFormatException e) {
-            System.err.println("An error occurred: " + e.getMessage());
+            System.err.println("Error during assigned employee reports output: " + e.getMessage());
         }
     }
 
-    // Method to run the client
+    // Handles client side conversation for updating password
+    private void updatePassword() throws IOException, ClassNotFoundException {
+        String response;
+        try {
+            // Password
+            response = (String) in.readObject();
+            System.out.println(response);
+            response = input.nextLine();
+            sendMessage(response);
+            // Verify
+            response = (String) in.readObject();
+            System.out.println(response);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error during updating the password: " + e.getMessage());
+        }
+    }
+
+    // Runs the client
     public void run() {
         try {
-            connection = new Socket(SERVER_ADDRESS, SERVER_PORT); // Create a socket to connect to the server
-            out = new ObjectOutputStream(connection.getOutputStream()); // Create output stream to send data to the server
-            in = new ObjectInputStream(connection.getInputStream()); // Create input stream to receive data from the server
-            //System.out.println("DEBUG Client: Client is running on port: " + connection.getLocalPort());
-            // Client -> Server conversation
+            connection = new Socket(SERVER_ADDRESS, SERVER_PORT);
+            out = new ObjectOutputStream(connection.getOutputStream());
+            in = new ObjectInputStream(connection.getInputStream());
             String response;
             // Receive and print the welcome message from the server
             response = (String) in.readObject();
             System.out.println(response);
-            // Menu loop
+            // Login menu loop
             do {
+                // Login menu
                 response = (String) in.readObject();
                 System.out.println(response);
                 response = input.nextLine();
@@ -224,7 +224,9 @@ public class Client {
                         break;
                 }
                 if (loggedIn) {
+                    // Main menu loop
                     do {
+                        // Main menu
                         response = (String) in.readObject();
                         System.out.println(response);
                         response = input.nextLine();
@@ -240,14 +242,17 @@ public class Client {
                                 assignEmployee();
                                 break;
                             case "4":
-                                viewAssignedReports();
+                                showAssignedReports();
+                                break;
+                            case "5":
+                                updatePassword();
                                 break;
                         }
                     } while (!response.equalsIgnoreCase("0"));
                 }
             } while (!response.equalsIgnoreCase("0"));
         } catch (IOException ioException) {
-            System.err.println("IO Exception: " + ioException.getMessage());
+            System.err.println("IO Exception Client Run: " + ioException.getMessage());
             ioException.printStackTrace();
         } catch (ClassNotFoundException classNotFoundException) {
             System.err.println("Class not found: " + classNotFoundException.getMessage());
