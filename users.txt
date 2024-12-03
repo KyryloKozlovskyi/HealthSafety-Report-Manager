@@ -1,5 +1,7 @@
 sam~1111~sam@gmail.com~123456~sales~associate
 john~2233~john@yahoo.com~12345a~production~operator
-owen~3344~owen@gmail.com~777777777777777777~quality~inspector
+owen~3344~owen@gmail.com~passwd~quality~inspector
 peter~7878~peter@proton.com~56789~rnd~engineer
 Kevin~2168~kevin@gmail.com~654321~R&D~Researcher
+Name ~123456~name@ggmail.com~123456~dept~dept
+Kyle~5678~kyle@gmail.com~098765~dept~dept

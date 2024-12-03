@@ -24,9 +24,9 @@ public class Client {
             out.writeObject(message);
             out.flush();
             System.out.println("client>" + message);
-        } catch (IOException ioException) {
-            System.err.println("Error sending message: " + ioException.getMessage());
-            ioException.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("Error sending message: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -115,13 +115,13 @@ public class Client {
     }
 
     // Handles displaying all reports on the client side
-    private void showAllReports() throws IOException, ClassNotFoundException, NumberFormatException {
+    private void showAllReports() throws IOException, ClassNotFoundException {
         String response;
         try {
             // Verify
             response = (String) in.readObject();
             System.out.println(response);
-        } catch (IOException | ClassNotFoundException | NumberFormatException e) {
+        } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error during report(all) output: " + e.getMessage());
         }
     }

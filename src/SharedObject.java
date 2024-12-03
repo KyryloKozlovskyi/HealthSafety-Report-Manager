@@ -7,10 +7,10 @@ import java.util.LinkedList;
 import java.util.Set;
 
 public class SharedObject {
-    private LinkedList<User> users;
-    private LinkedList<Report> reports;
-    private Set<String> emailSet;
-    private Set<String> employeeIdSet;
+    private final LinkedList<User> users;
+    private final LinkedList<Report> reports;
+    private final Set<String> emailSet;
+    private final Set<String> employeeIdSet;
 
     // Constructor
     public SharedObject() {
@@ -112,7 +112,7 @@ public class SharedObject {
                 writer.write(user.getName() + "~" + user.getEmployeeId() + "~" + user.getEmail() + "~" + user.getPassword() + "~" + user.getDepartmentName() + "~" + user.getRole());
                 writer.newLine();
             }
-            System.out.println("User Data successfully written to " + fileName);
+            System.out.println("User data successfully written to " + fileName);
         } catch (IOException e) {
             System.err.println("An error occurred while writing users to file: " + e.getMessage());
             e.printStackTrace();
@@ -183,7 +183,7 @@ public class SharedObject {
                 writer.write(report.getReportType() + "~" + report.getReportId() + "~" + report.getDate() + "~" + report.getEmployeeId() + "~" + report.getStatus() + "~" + report.getAssignedEmployee());
                 writer.newLine();
             }
-            System.out.println("User Data successfully written to " + fileName);
+            System.out.println("Report data successfully written to " + fileName);
         } catch (IOException e) {
             System.err.println("An error occurred while writing to file: " + e.getMessage());
             e.printStackTrace();
@@ -191,7 +191,7 @@ public class SharedObject {
     }
 
     // Updates the password of the user
-    public boolean updatePassword(String loggedInUser, String newPassword) {
+    public synchronized boolean updatePassword(String loggedInUser, String newPassword) {
         for (User user : users) {
             // Check if the email matches the logged-in user
             if (user.getEmail().equals(loggedInUser)) {
