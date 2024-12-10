@@ -7,7 +7,7 @@ public class User {
     private String departmentName; // Stores department name
     private String role; // Stores user role
 
-    // Constructor
+    // Constructor to initialize user data
     public User(String name, String employeeId, String email, String password, String departmentName, String role) {
         this.name = name;
         this.employeeId = employeeId;

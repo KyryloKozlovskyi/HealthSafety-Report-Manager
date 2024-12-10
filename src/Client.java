@@ -5,13 +5,15 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
+    // Server address and port
     private static final String SERVER_ADDRESS = "localhost";
     private static final int SERVER_PORT = 9090;
+    // Input scanner and IO streams
     private final Scanner input;
     private ObjectOutputStream out;
     private ObjectInputStream in;
-    private Socket connection;
-    private boolean loggedIn;
+    private Socket connection; // Stores the connection to the server
+    private boolean loggedIn; // Flag to check if user is logged in
 
     // Constructor
     public Client() {
@@ -21,6 +23,7 @@ public class Client {
     // Sends a message to the server
     private void sendMessage(String message) throws IOException {
         try {
+            // Send message to server
             out.writeObject(message);
             out.flush();
             System.out.println("client>" + message);
@@ -201,6 +204,7 @@ public class Client {
     // Runs the client
     public void run() {
         try {
+            // Connect to the server and create steams
             connection = new Socket(SERVER_ADDRESS, SERVER_PORT);
             out = new ObjectOutputStream(connection.getOutputStream());
             in = new ObjectInputStream(connection.getInputStream());

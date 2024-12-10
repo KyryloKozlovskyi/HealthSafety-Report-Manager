@@ -4,14 +4,15 @@ import java.util.Date;
 import java.util.LinkedList;
 
 public class ServerThread extends Thread {
-    private final Socket connection;
+    private final Socket connection; // Socket connection
+    // IO streams
     private ObjectOutputStream out;
     private ObjectInputStream in;
-    private final SharedObject sharedObject;
-    private boolean loggedIn;
-    private String loggedInUser;
+    private final SharedObject sharedObject; // Shared object to store users and reports
+    private boolean loggedIn; // Flag for the login status
+    private String loggedInUser; // Store the logged-in user email
 
-    // Constructor
+    // Constructor to initialize the connection and shared object
     public ServerThread(Socket socket, SharedObject sharedObject) {
         this.connection = socket;
         this.sharedObject = sharedObject;
@@ -50,6 +51,7 @@ public class ServerThread extends Thread {
             String departmentName = (String) in.readObject();
             sendMessage("Enter role: ");
             String role = (String) in.readObject();
+            // Create a new user object
             User user = new User(name, employeeId, email, password, departmentName, role);
             // Add user to the shared object and write to file
             if (sharedObject.addUser(user)) {
@@ -122,11 +124,14 @@ public class ServerThread extends Thread {
     // Handles displaying all reports on the server side
     private void showAllReports() throws IOException {
         try {
+            // Get all reports from the shared object
             LinkedList<Report> reports = sharedObject.getAllReports();
             StringBuilder reportInfo = new StringBuilder("Current Registered Reports:\n");
+            // Loop through all reports and build a string to display them
             for (Report report : reports) {
                 reportInfo.append(report.getReportType()).append(", ").append(report.getReportId()).append(", ").append(report.getDate()).append(", ").append(report.getEmployeeId()).append(", ").append(report.getStatus()).append(", ").append(report.getAssignedEmployee()).append("\n");
             }
+            // Send the report information to the client
             sendMessage(reportInfo.toString());
         } catch (IOException e) {
             System.err.println("Error during report(all) output: " + e.getMessage());
@@ -195,6 +200,7 @@ public class ServerThread extends Thread {
             if (reportInfo.toString().equals("Current Registered Reports:\n")) {
                 reportInfo.append("No reports assigned to you.");
             }
+            // Send the report information to the client
             sendMessage(reportInfo.toString());
         } catch (IOException e) {
             System.err.println("Error during assigned employee reports output: " + e.getMessage());
@@ -222,6 +228,7 @@ public class ServerThread extends Thread {
     @Override
     public void run() {
         try {
+            // Initialize the IO streams
             out = new ObjectOutputStream(connection.getOutputStream());
             in = new ObjectInputStream(connection.getInputStream());
             sendMessage("Welcome to the Health and Safety Report Manager!");

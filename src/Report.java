@@ -9,7 +9,7 @@ public class Report {
     private ReportStatus status; // Stores report status ( Open/Assigned/Closed)
     private String assignedEmployee; // Stores employeeId of the employee assigned to the report
 
-    // Constructor
+    // Constructor to initialize the report.
     public Report(ReportType reportType, String reportId, Date date, String employeeId, ReportStatus status, String assignedEmployee) {
         this.reportType = reportType;
         this.reportId = reportId;
@@ -68,6 +68,7 @@ public class Report {
         this.assignedEmployee = assignedEmployee;
     }
 
+    // toString method to print the report details
     @Override
     public String toString() {
         return "Report{" + "reportType=" + reportType + ", reportId='" + reportId + '\'' + ", date=" + date + ", employeeId='" + employeeId + '\'' + ", status=" + status + ", assignedEmployee='" + assignedEmployee + '\'' + '}';

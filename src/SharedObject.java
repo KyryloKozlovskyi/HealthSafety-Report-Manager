@@ -7,12 +7,14 @@ import java.util.LinkedList;
 import java.util.Set;
 
 public class SharedObject {
+    // LinkedList to store users and reports
     private final LinkedList<User> users;
     private final LinkedList<Report> reports;
+    // Sets to store unique email and employee ID
     private final Set<String> emailSet;
     private final Set<String> employeeIdSet;
 
-    // Constructor
+    // Constructor. Initializes the lists and sets and loads data from files
     public SharedObject() {
         users = new LinkedList<User>();
         reports = new LinkedList<Report>();
@@ -39,6 +41,7 @@ public class SharedObject {
                     String password = userFields[3];
                     String departmentName = userFields[4];
                     String role = userFields[5];
+                    // Create a user object and add to the list
                     user = new User(name, employeeId, email, password, departmentName, role);
                     addUser(user);
                 } else {
@@ -93,6 +96,7 @@ public class SharedObject {
     // Returns the user object by email
     public synchronized String getUserId(String email) {
         String id = "";
+        // Find the user by email and return the employee ID
         for (User user : users) {
             if (user.getEmail().equals(email)) {
                 id = user.getEmployeeId();
@@ -119,7 +123,7 @@ public class SharedObject {
         }
     }
 
-    // Loads users from file to the shared object
+    // Loads reports from file to the shared object
     public synchronized void loadReports(String fileName) {
         Report report;
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy"); // Date format
@@ -129,7 +133,7 @@ public class SharedObject {
             while ((line = reader.readLine()) != null) {
                 // Split the line
                 String[] reportFields = line.split("~");
-                // Add user to the shared object
+                // Add reports to the shared object
                 if (reportFields.length == 6) {
                     ReportType reportType = ReportType.valueOf(reportFields[0]);
                     String reportId = reportFields[1];
@@ -137,6 +141,7 @@ public class SharedObject {
                     String employeeId = reportFields[3];
                     ReportStatus status = ReportStatus.valueOf(reportFields[4]);
                     String assignedEmployee = reportFields[5];
+                    // Create a report object and add to the list
                     report = new Report(reportType, reportId, date, employeeId, status, assignedEmployee);
                     addReport(report);
                 }
